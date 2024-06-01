@@ -16,8 +16,7 @@ var prompt = "$ "
 
 func main() {
 	builtins := []string{"echo", "exit", "type"}
-	// pwd, _ := os.Getwd()
-	// prompt = pwd + "% "
+	pwd, _ := os.Getwd()
 	for {
 		fmt.Fprintf(os.Stdout, "%s", prompt)
 		line, _ := bufio.NewReader(os.Stdin).ReadString('\n')
@@ -37,6 +36,8 @@ func main() {
 				rest = strings.TrimSpace(rest)
 				fmt.Fprintf(os.Stdout, "%s\n", rest)
 			}
+		case "pwd":
+			fmt.Fprintf(os.Stdout, "%s\n", pwd)
 		case "type":
 			cmd, _, err := next(args)
 			if err != nil {
