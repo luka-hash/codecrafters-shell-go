@@ -4,11 +4,26 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 )
 
-func main() {
-	fmt.Fprint(os.Stdout, "$ ")
+const prompt = "$ "
 
-	// Wait for user input
-	bufio.NewReader(os.Stdin).ReadString('\n')
+func main() {
+loop:
+	for {
+		fmt.Fprintf(os.Stdout, "%s", prompt)
+		line, _ := bufio.NewReader(os.Stdin).ReadString('\n')
+		args := strings.Fields(line)
+		if len(args) == 0 {
+			continue
+		}
+		switch args[0] {
+		default:
+			fmt.Fprintf(os.Stdout, "%s: command not found\n", args[0])
+			break loop
+		}
+
+	}
+
 }
