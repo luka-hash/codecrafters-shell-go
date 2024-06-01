@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -12,6 +13,7 @@ import (
 const prompt = "$ "
 
 func main() {
+	builtins := []string{"echo", "exit", "type"}
 	for {
 		fmt.Fprintf(os.Stdout, "%s", prompt)
 		line, _ := bufio.NewReader(os.Stdin).ReadString('\n')
@@ -24,6 +26,16 @@ func main() {
 		case "echo":
 			rest, _ := strings.CutPrefix(line, command)
 			fmt.Fprintf(os.Stdout, "%s\n", strings.TrimSpace(rest))
+		case "type":
+			cmd, _, err := next(args)
+			if err != nil {
+				fmt.Fprintf(os.Stdout, "%s\n", "type builtin requires 1 argument")
+			}
+			if slices.Contains(builtins, cmd) {
+				fmt.Fprintf(os.Stdout, "%s is a shell builtin\n", cmd)
+			} else {
+				fmt.Fprintf(os.Stdout, "%s not found\n", cmd)
+			}
 		case "exit":
 			exit_code_str, _, err := next(args)
 			if err != nil {
