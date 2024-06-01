@@ -21,6 +21,9 @@ func main() {
 		}
 		command, args, _ := next(args)
 		switch command {
+		case "echo":
+			rest, _ := strings.CutPrefix(line, command)
+			fmt.Fprintf(os.Stdout, "%s\n", strings.TrimSpace(rest))
 		case "exit":
 			exit_code_str, _, err := next(args)
 			if err != nil {
