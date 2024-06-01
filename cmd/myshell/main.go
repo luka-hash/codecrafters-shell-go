@@ -17,6 +17,7 @@ var prompt = "$ "
 func main() {
 	builtins := []string{"echo", "exit", "type"}
 	pwd, _ := os.Getwd()
+	// prompt = pwd + "%"
 	for {
 		fmt.Fprintf(os.Stdout, "%s", prompt)
 		line, _ := bufio.NewReader(os.Stdin).ReadString('\n')
@@ -38,6 +39,25 @@ func main() {
 			}
 		case "pwd":
 			fmt.Fprintf(os.Stdout, "%s\n", pwd)
+		case "cd":
+			path, _, err := next(args)
+			if err != nil || path == "~" {
+				home, _ := os.UserHomeDir()
+				if err := os.Chdir(home); err != nil {
+					panic(err)
+				}
+			} else {
+				if _, err := os.Stat(path); os.IsNotExist(err) {
+					fmt.Fprintf(os.Stdout, "%s: No such file or directory\n", path)
+					break
+				}
+				if err := os.Chdir(path); err != nil {
+					panic(err)
+				}
+			}
+			// fix
+			pwd, _ = os.Getwd()
+			// prompt = pwd + "%"
 		case "type":
 			cmd, _, err := next(args)
 			if err != nil {
