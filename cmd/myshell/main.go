@@ -10,7 +10,6 @@ import (
 const prompt = "$ "
 
 func main() {
-loop:
 	for {
 		fmt.Fprintf(os.Stdout, "%s", prompt)
 		line, _ := bufio.NewReader(os.Stdin).ReadString('\n')
@@ -21,9 +20,6 @@ loop:
 		switch args[0] {
 		default:
 			fmt.Fprintf(os.Stdout, "%s: command not found\n", args[0])
-			break loop
 		}
-
 	}
-
 }
