@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path"
 	"slices"
 	"strconv"
 	"strings"
@@ -24,8 +25,15 @@ func main() {
 		command, args, _ := next(args)
 		switch command {
 		case "echo":
-			rest, _ := strings.CutPrefix(line, command)
-			fmt.Fprintf(os.Stdout, "%s\n", strings.TrimSpace(rest))
+			arg, _ := peek(args)
+			if arg[0] == '$' {
+				v, _ := os.LookupEnv(arg[1:])
+				fmt.Fprintf(os.Stdout, "%s\n", v)
+			} else {
+				rest, _ := strings.CutPrefix(line, command)
+				rest = strings.TrimSpace(rest)
+				fmt.Fprintf(os.Stdout, "%s\n", rest)
+			}
 		case "type":
 			cmd, _, err := next(args)
 			if err != nil {
@@ -33,8 +41,11 @@ func main() {
 			}
 			if slices.Contains(builtins, cmd) {
 				fmt.Fprintf(os.Stdout, "%s is a shell builtin\n", cmd)
+			} else if e, ok := searchPath(cmd); ok {
+				fmt.Fprintf(os.Stdout, "%s is %s\n", cmd, e)
 			} else {
 				fmt.Fprintf(os.Stdout, "%s not found\n", cmd)
+
 			}
 		case "exit":
 			exit_code_str, _, err := next(args)
@@ -65,4 +76,17 @@ func peek(ss []string) (string, error) {
 		return "", errors.New("lice is empty")
 	}
 	return ss[0], nil
+}
+
+func searchPath(cmd string) (string, bool) {
+	PATH, _ := os.LookupEnv("PATH")
+	for _, subpath := range strings.Split(PATH, ":") {
+		files, _ := os.ReadDir(subpath)
+		for _, item := range files {
+			if !item.IsDir() && item.Name() == cmd {
+				return path.Join(subpath, item.Name()), true
+			}
+		}
+	}
+	return "", false
 }
